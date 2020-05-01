@@ -23,6 +23,7 @@
     
     Version history:
     2020-04-13        v1.0.0        First release.
+    2020-05-01        v1.0.1        Bug fixes.
 
 */
 
@@ -69,7 +70,6 @@ int adcValue_UA_Optimal = 0;                                        /* UA ADC va
 int adcValue_UR_Optimal = 0;                                        /* UR ADC value stored when CJ125 is in calibration mode, optimal temperature */
 int HeaterOutput = 0;                                               /* Current PWM output value (0-255) of the heater output pin */
 int CJ125_Status = 0;                                               /* Latest stored DIAG registry response from the CJ125 */
-int serial_counter = 0;                                             /* Counter used to calculate refresh rate on the serial output */
 int HeaterStatus = 0;                                               /* Defines the heater status for the GUI front-end */
 
 
@@ -232,7 +232,10 @@ void loop() {
   UpdateBLEOutput();
   
   //Turn off heating.
-  if (adcValue_UB < UBAT_MIN) {
+  if (adcValue_UB < UBAT_MIN || CJ125_Status != CJ125_DIAG_REG_STATUS_OK) {
+
+    //Update heater status to off.
+    HeaterStatus = 0;
     analogWrite(HEATER_OUTPUT_PIN, 0);
 
     //Output LED's.
